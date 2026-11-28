@@ -11,13 +11,17 @@ result. Polling is sufficient for a first version.
 - Make job claims exclusive. Resume a session with the authorized job's saved
   state. Persist the pending question and release the worker while awaiting
   user input. Re-queue on reply with the same session, and handle repeated
-  requests without duplicating work or outputs.
+  requests without duplicating work or outputs. Advance the committed
+  checkpoint under the same lease or other ownership check used to publish
+  output. Keep uncommitted retries from replacing the latest good state.
 - Apply job-specific limits for time, tool calls, retrieval volume, and model
   spend as appropriate. A client disconnect can end progress delivery without
   canceling the job. Use the job's lifetime to govern cancellation.
 - Store the brief, exact evidence, and completed artifacts externally.
   Compaction can summarize the transcript and reduce context size. Stable
   evidence IDs let a later drafting turn recover excerpts and citations.
+  For the task facts that should survive compaction and be restored alongside
+  the session, see [working memory](harness-optimization.md#4-persist-task-facts-at-workflow-boundaries).
   [Pi compaction](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/compaction.md)
 
 ## Analytics-to-report handoff

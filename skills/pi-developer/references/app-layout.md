@@ -17,17 +17,38 @@ agents/
 src/
   agents.js                        # Server-owned profile registry
   pi/                              # Session creation, resource loading, scoped reader
-  <feature>/                       # Feature tools, output checks, CLI or API adapter
-  shared/                          # Services used by multiple features
-  server.js                        # HTTP entry point, when needed
-  jobs/                            # Persisted work, when needed
+  cli.js                           # Shared command-line entry point, when needed
+  server.js                        # HTTP startup and route bindings, when needed
+  <feature>/                       # Feature tools and output checks
+  shared/                          # Retrieval, computation, or artifact services
+  workspace/                       # Durable API, worker, and storage, when needed
 .env.example
 ```
 
 Resolve profile names through the server registry. Each profile can select a
 provider/model, system prompt, skill root, enabled tools, and execution limits.
-Keep request state such as tool results and attachments scoped to the current
-run. Use stable IDs and explicit ownership in service calls.
+Cache or reuse initialized profile resources when they are stable. Create or
+reopen a session for the authorized thread or run. Keep tool closures,
+attachments, results, and cancellation state scoped to the invocation. Use
+stable IDs and explicit ownership in service calls.
+
+### Build the first vertical slice
+
+1. Pin the Pi SDK and supported Node.js or Bun version. Put one profile in
+   the registry and give it a small system prompt and a skill with an example
+   or reference for a realistic task.
+2. Wire a CLI command or API route through the same profile runner that later
+   entry points can call. Resolve the profile and its capabilities on the host.
+   Define the answer or artifact contract and implement its validation before
+   widening tool access.
+3. Set up discovery and an explicit tool surface using the
+   [SDK guide](pi-sdk.md). Run a fixture from the public entry point and
+   confirm it can read the selected resource and produce a validated result.
+4. Add persistence when the workflow needs history, a disconnect-safe run, or
+   clarification. Use the [jobs guide](jobs-and-artifacts.md) for those paths.
+   Add another profile by registering its model, prompt, skill roots, and tool
+   factories in the same runtime. Reuse services through their access-checked
+   interfaces. Deploy separately if isolation or operating needs require it.
 
 ### Profile or skill
 

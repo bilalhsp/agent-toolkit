@@ -37,6 +37,21 @@ version, and exact relative paths. Keep application tools explicit when a
 copied skill depends on scripts or external services.
 [Pi skills](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/skills.md) · [Agent Skills specification](https://agentskills.io/specification)
 
+### Wire the lifecycle
+
+- **On configuration**, resolve the registered profile and its provider/model
+  through Pi's model runtime. Use the host's secret configuration, load
+  resources once for that profile configuration, and surface discovery errors
+  before admitting runs. The app owns the profile's model defaults and limits.
+- **On invocation**, resolve the user or job's access, assemble its scoped
+  tool handlers, and select the session manager. Supply the configured model,
+  loaded resources, and explicit active tool names to `createAgentSession`.
+  Check the actual option names and behavior on the pinned SDK.
+- **On settlement**, return the validated tool submission or the permitted
+  assistant text for this request. Propagate cancellation and dispose of the
+  session and any run-local clients. A durable worker promotes only the
+  checkpoint and output it owns.
+
 ### Run and verify
 
 Use `createAgentSession` with an in-memory session manager for stateless

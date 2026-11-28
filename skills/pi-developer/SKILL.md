@@ -1,45 +1,46 @@
 ---
 name: pi-developer
-description: Build or extend agentic applications that embed @earendil-works/pi-coding-agent. Use for Pi SDK backends, agent profiles, built-in SKILL.md discovery, app tools, and shared artifacts or background jobs across Pi agents.
+description: Design, build, or optimize applications that embed @earendil-works/pi-coding-agent. Use for new Pi harnesses, agent profiles and skills, tool integration, prompt caching, context budgets, and session or job continuity.
 ---
 
 # Pi Developer
 
-**Keep the application lean, efficient, and well structured.** Reuse Pi and
-existing app code where they already meet the need. Remove redundant code and
-work within the scope of the change. Keep responsibilities clear and add
-abstractions only when they simplify the code.
+Use Pi for the model and tool loop, skill discovery, session replay, and
+compaction. Keep profile selection, authorization, application state,
+deterministic computation, and output validation in the host. The developer
+skill guides the application build. Application agents load their own skills.
 
-Use Pi's full runtime as the agent engine. Keep the application responsible for
-identity, data access, lifecycle, and structured outputs. These instructions are
-for building the app. Its agents have their own runtime skills.
+## Build the harness
 
-## Shape the change
+1. For a new app, use the [application layout](references/app-layout.md).
+   Start with one profile, one normal entry point, and one validated result.
+   For an existing app, trace the user-facing entry points and pinned SDK first.
+2. Share the Pi session factory. Add a skill when a task shares a profile's
+   capabilities, permissions, lifecycle, and output contract. Add a profile
+   when those boundaries materially differ. Keep model-visible conversation,
+   mutable tool state, and working memory scoped to each authorized session.
+3. Follow the [SDK integration guide](references/pi-sdk.md) for provider setup,
+   profile prompts, built-in skill discovery, explicit tool allowlists, and
+   scoped resource reads. Put procedures and examples in the skill and load
+   them on demand.
+4. Follow the [jobs and artifacts guide](references/jobs-and-artifacts.md) when
+   runs must survive disconnects or clarification, or when a profile consumes
+   another's work. Pass authorized artifact references between profiles.
 
-1. Inspect the app's entry points, pinned Pi SDK version, and existing agent
-   layout. Reuse them. For a new app, use the
-   [application layout](references/app-layout.md) as a starting point and build
-   only the parts the request needs.
-2. Add a skill to an existing profile when it shares the profile's tools,
-   permissions, execution lifecycle, and output contract. Add a profile when
-   those boundaries materially differ. Share one runtime and inject each
-   profile's capabilities from the backend.
-3. Keep app-wide behavioral rules in the profile's system prompt. Put
-   domain procedures in portable `SKILL.md` folders with versioned references,
-   examples, or templates as needed. Use Pi's resource loader for discovery.
-   Read the [SDK integration guide](references/pi-sdk.md) when creating or
-   changing the session factory, provider, tool registration, or skill discovery.
-4. Use tools for retrieval, computation, validation, and publication. Let Pi
-   decide the order of tool calls within the skill. Encode job state transitions,
-   authorization, and output checks in the host where they can be enforced.
-   Read the [jobs and artifacts guide](references/jobs-and-artifacts.md) when
-   work must outlive a request or one agent consumes another's output.
+## Optimize and verify
 
-## Verify the path users will take
+Read [harness optimization](references/harness-optimization.md) when designing
+or tuning prompts, long sessions, or working memory. It includes a baseline
+procedure, a rollout order, and concrete OpenClaw and Mini Coding Agent examples.
 
-Check that the normal CLI or API entry point selects the intended profile,
-that Pi advertises and can read a bundled skill, and that its active tool set
-matches the profile. Exercise one representative result from the skill through
-the output contract. Use local fixtures or an injected model for repeatable
-checks. Report a live model run separately when credentials or network access
-are unavailable.
+Keep stable profile instructions and tool declarations ahead of changing task
+context. Measure provider cache usage before adding custom cache behavior.
+Bound tool outputs before tuning Pi compaction. Persist essential facts as
+validated task state whenever the workflow requires continuity independent of
+the transcript.
+
+Exercise the normal entry point with a local fixture or injected model. Check
+profile selection, advertised skills, permitted and denied reads, active tools,
+and a representative output contract. For durable flows, reopen the session and
+check the specific facts and artifacts needed to finish. Report live inference
+and cache results separately from offline verification.
